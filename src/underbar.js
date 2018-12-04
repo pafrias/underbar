@@ -82,16 +82,48 @@
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+    var resultArray = []
+    _.each(collection, function(value) {
+      if (test(value)) {
+        resultArray.push(value);
+      }
+    });
+    return resultArray;
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
+    var trueArray = _.filter(collection, test);
+    var resultArray = _.filter(collection, function(value) {
+      if (!trueArray.includes(value)) { return true }
+    });
+    return resultArray;
+
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
   };
 
   // Produce a duplicate-free version of the array.
-  _.uniq = function(array, isSorted, iterator) {
+  _.uniq = function(array, isSorted = false, iterator = _.identity) {
+/*    if (iterator === undefined) {
+      var iterator = _.identity();
+    };
+/*    if (isSorted === undefined) {
+      var isSorted === false;
+    };*/
+    let unique = [];
+    if (isSorted) {
+      _.each(array, function(item) {
+        if (!unique.includes(item) && iterator(item)) {
+         unique.push(item)};
+      });
+    } else if (!isSorted) {
+      _.each(array, function(item) {
+        if (!unique.includes(item) && iterator(item)) {
+         unique.push(item)};
+      });
+    }
+    return unique;
   };
 
 
@@ -141,6 +173,12 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    var result = accumulator || undefined;
+    _.each(collection, function(item) {
+      iterator(accumulator, item);
+    });
+    return result;
+
   };
 
   // Determine if the array or object contains a given value (using `===`).
