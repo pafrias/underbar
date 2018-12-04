@@ -6,7 +6,8 @@
   // Returns whatever value is passed as the argument. This function doesn't
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
-  _.identity = function(val) { return val;
+  _.identity = function(val) {
+    return val;
   };
 
   /**
@@ -50,7 +51,6 @@
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
-    var parameters = arguments[1].length;
     if (Array.isArray(collection)) {
       for (var i = 0; i < collection.length; i++) {
         iterator(collection[i], i, collection);
@@ -105,33 +105,43 @@
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array, isSorted = false, iterator = _.identity) {
-/*    if (iterator === undefined) {
-      var iterator = _.identity();
-    };
-/*    if (isSorted === undefined) {
-      var isSorted === false;
-    };*/
-    let unique = [];
+    var unique = [];
+    _.each(array, function(item) {
+      if (!unique.includes(item) && iterator(item)) {
+        unique.push(item)};
+      });
     if (isSorted) {
-      _.each(array, function(item) {
-        if (!unique.includes(item) && iterator(item)) {
-         unique.push(item)};
-      });
+      return unique;
     } else if (!isSorted) {
-      _.each(array, function(item) {
-        if (!unique.includes(item) && iterator(item)) {
-         unique.push(item)};
-      });
+      var sortedArray = [];
+      var minValue = Math.min(...unique)
+      var maxValue = Math.max(...unique)
+      for (var i = minValue; i <= maxValue; i ++) {
+        var quarry = unique[_.indexOf(unique, i)];
+        if (!sortedArray.includes(quarry)) { sortedArray.push(quarry) };
+      };
+    return sortedArray;
     }
-    return unique;
   };
 
 
   // Return the results of applying an iterator to each element.
+  // map() is a useful primitive iteration function that works a lot
+  // like each(), but in addition to running the operation on all
+  // the members, it also maintains an array of results.
   _.map = function(collection, iterator) {
-    // map() is a useful primitive iteration function that works a lot
-    // like each(), but in addition to running the operation on all
-    // the members, it also maintains an array of results.
+    var resultArray = [];
+    if (Array.isArray(collection)) {
+      for (var i = 0; i < collection.length; i++) {
+        resultArray[i] = iterator(collection[i], i, collection);
+      }
+    } else {
+      var keys = Object.keys(collection)
+      for (var i = 0; i < keys.length; i ++) {
+        resultArray.keys[i] = iterator(collection.keys[i], keys[i], collection);
+      }
+    };
+    return resultArray;
   };
 
   /*
@@ -172,13 +182,15 @@
   //     return total + number * number;
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
-  _.reduce = function(collection, iterator, accumulator) {
-    var result = accumulator || undefined;
-    _.each(collection, function(item) {
-      iterator(accumulator, item);
+  _.reduce = function(collection, iterator = _.identity, accumulator) {
+    var args = collection.slice(0, collection.length);
+    if (accumulator === undefined) {
+      accumulator = args.shift();
+    }
+    _.each(args, function(item) {
+      accumulator = iterator(accumulator, item);
     });
-    return result;
-
+    return accumulator;
   };
 
   // Determine if the array or object contains a given value (using `===`).
