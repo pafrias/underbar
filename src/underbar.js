@@ -104,7 +104,7 @@
   };
 
   // Produce a duplicate-free version of the array.
-  _.uniq = function(array, isSorted = false, iterator = _.identity) {
+  /*_.uniq = function(array, isSorted = false, iterator = _.identity) {
     var unique = [];
     _.each(array, function(item) {
       if (!unique.includes(item) && iterator(item)) {
@@ -114,6 +114,25 @@
       return unique;
     } else if (!isSorted) {
       var sortedArray = [];
+      var minValue = Math.min(...unique)
+      var maxValue = Math.max(...unique)
+      for (var i = minValue; i <= maxValue; i ++) {
+        var quarry = unique[_.indexOf(unique, i)];
+        if (!sortedArray.includes(quarry)) { sortedArray.push(quarry) };
+      };
+    return sortedArray;
+    }
+  };*/
+  _.uniq = function(array, isSorted = false, iterator = _.identity) {
+    var  seen = [], unique = [], sortedArray = [];
+    _.each(array, function(item) {
+      if (!seen.includes(iterator(item))) {
+        seen.push(iterator(item));
+        unique.push(item)};
+      });
+    if (isSorted) {
+      return unique;
+    } else if (!isSorted) {
       var minValue = Math.min(...unique)
       var maxValue = Math.max(...unique)
       for (var i = minValue; i <= maxValue; i ++) {
