@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  window._ = {};
+  window._ = {}; //very interesting....
 
   // Returns whatever value is passed as the argument. This function doesn't
   // seem very useful, but remember it--if a function needs to provide an
@@ -66,9 +66,7 @@
   // Returns the index at which value can be found in the array, or -1 if value
   // is not present in the array.
   _.indexOf = function(array, target){
-    // TIP: Here's an example of a function that needs to iterate, which we've
-    // implemented for you. Instead of using a standard `for` loop, though,
-    // it uses the iteration helper `each`, which you will need to write.
+    
     var result = -1;
 
     _.each(array, function(item, index) {
@@ -94,35 +92,14 @@
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
     var trueArray = _.filter(collection, test);
-    var resultArray = _.filter(collection, function(value) {
+    var rejectArray = _.filter(collection, function(value) {
       if (!trueArray.includes(value)) { return true }
     });
-    return resultArray;
-
-    // TIP: see if you can re-use _.filter() here, without simply
-    // copying code in and modifying it
+    return rejectArray;
   };
 
   // Produce a duplicate-free version of the array.
-  /*_.uniq = function(array, isSorted = false, iterator = _.identity) {
-    var unique = [];
-    _.each(array, function(item) {
-      if (!unique.includes(item) && iterator(item)) {
-        unique.push(item)};
-      });
-    if (isSorted) {
-      return unique;
-    } else if (!isSorted) {
-      var sortedArray = [];
-      var minValue = Math.min(...unique)
-      var maxValue = Math.max(...unique)
-      for (var i = minValue; i <= maxValue; i ++) {
-        var quarry = unique[_.indexOf(unique, i)];
-        if (!sortedArray.includes(quarry)) { sortedArray.push(quarry) };
-      };
-    return sortedArray;
-    }
-  };*/
+  
   _.uniq = function(array, isSorted = false, iterator = _.identity) {
     var  seen = [], unique = [], sortedArray = [];
     _.each(array, function(item) {
@@ -150,17 +127,19 @@
   // the members, it also maintains an array of results.
   _.map = function(collection, iterator) {
     var resultArray = [];
+    var resultObj = {}
     if (Array.isArray(collection)) {
       for (var i = 0; i < collection.length; i++) {
         resultArray[i] = iterator(collection[i], i, collection);
       }
+      return resultArray
     } else {
       var keys = Object.keys(collection)
       for (var i = 0; i < keys.length; i ++) {
-        resultArray.keys[i] = iterator(collection.keys[i], keys[i], collection);
+        resultObj.keys[i] = iterator(collection.keys[i], keys[i], collection);
       }
+      return resultObj;
     };
-    return resultArray;
   };
 
   /*
@@ -181,28 +160,10 @@
     });
   };
 
-  // Reduces an array or object to a single value by repetitively calling
-  // iterator(accumulator, item) for each item. accumulator should be
-  // the return value of the previous iterator call.
-  //  
-  // You can pass in a starting value for the accumulator as the third argument
-  // to reduce. If no starting value is passed, the first element is used as
-  // the accumulator, and is never passed to the iterator. In other words, in
-  // the case where a starting value is not passed, the iterator is not invoked
-  // until the second element, with the first element as its second argument.
-  //  
-  // Example:
-  //   var numbers = [1,2,3];
-  //   var sum = _.reduce(numbers, function(total, number){
-  //     return total + number;
-  //   }, 0); // should be 6
-  //  
-  //   var identity = _.reduce([5], function(total, number){
-  //     return total + number * number;
-  //   }); // should be 5, regardless of the iterator function passed in
-  //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator = _.identity, accumulator) {
-    var args = collection.slice(0, collection.length);
+    var args = [];
+    Array.isArray(collection) ? args = collection.slice(0, collection.length) :
+                                args = Object.values(collection);
     if (accumulator === undefined) {
       accumulator = args.shift();
     }
@@ -226,14 +187,23 @@
 
 
   // Determine whether all of the elements match a truth test.
-  _.every = function(collection, iterator) {
-    // TIP: Try re-using reduce() here.
+  _.every = function(collection, iterator = _.identity) {
+    var testTruth = _.map(collection, iterator);
+    return _.reduce(testTruth, function(accumulator, item) {
+      if (accumulator == false) {
+        return false;
+      } else {
+       return (item) ? true : false;
+      };
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
-  _.some = function(collection, iterator) {
-    // TIP: There's a very clever way to re-use every() here.
+  _.some = function(collection, iterator = _.identity) {
+    return !_.every(collection, function(item) {
+      return (!iterator(item));
+    });
   };
 
 
@@ -256,11 +226,34 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+
+    for (var i = 1; i < arguments.length; i ++) {
+      if (Object.keys(arguments[i]).length === undefined) {
+      } else {
+        _.each(arguments[i], function(value, key) {
+          { obj[key] = value; };
+        });
+      };
+    }
+
+    return obj;
+
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+
+    for (var i = 1; i < arguments.length; i ++) {
+      if (Object.keys(arguments[i]).length === undefined) {
+      } else {
+        _.each(arguments[i], function(value, key) {
+          if (obj[key] === undefined) { obj[key] = value; };
+        });
+      };
+    }
+
+    return obj;
   };
 
 
@@ -304,6 +297,11 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+
+    var alreadyCalled = {};
+    
+
+
   };
 
   // Delays a function for the given number of milliseconds, and then calls
