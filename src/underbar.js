@@ -125,7 +125,7 @@
   // map() is a useful primitive iteration function that works a lot
   // like each(), but in addition to running the operation on all
   // the members, it also maintains an array of results.
-  _.map = function(collection, iterator) {
+  _.map = function(collection, iterator = _.identity) {
     var resultArray = [];
     var resultObj = {}
     if (Array.isArray(collection)) {
@@ -225,12 +225,12 @@
   //   }, {
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
-  _.extend = function(obj) {
+  _.extend = function(obj, ...args) {
 
-    for (var i = 1; i < arguments.length; i ++) {
-      if (Object.keys(arguments[i]).length === undefined) {
+    for (var i = 0; i < args.length; i ++) {
+      if (Object.keys(args[i]).length === undefined) {
       } else {
-        _.each(arguments[i], function(value, key) {
+        _.each(args[i], function(value, key) {
           { obj[key] = value; };
         });
       };
@@ -242,12 +242,12 @@
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
-  _.defaults = function(obj) {
+  _.defaults = function(obj, ...args) {
 
-    for (var i = 1; i < arguments.length; i ++) {
-      if (Object.keys(arguments[i]).length === undefined) {
+    for (var i = 0; i < args.length; i ++) {
+      if (Object.keys(args[i]).length === undefined) {
       } else {
-        _.each(arguments[i], function(value, key) {
+        _.each(args[i], function(value, key) {
           if (obj[key] === undefined) { obj[key] = value; };
         });
       };
@@ -278,8 +278,6 @@
     // if it hasn't been called before.
     return function() {
       if (!alreadyCalled) {
-        // TIP: .apply(this, arguments) is the standard way to pass on all of the
-        // infromation from one function call to another.
         result = func.apply(this, arguments);
         alreadyCalled = true;
       }
@@ -299,9 +297,15 @@
   _.memoize = function(func) {
 
     var alreadyCalled = {};
-    
 
-
+    var memoize = function() {
+      var key = JSON.stringify([...arguments]);
+      if (alreadyCalled[key] === undefined) {
+        alreadyCalled[key] = func.apply(this, arguments);
+      }
+      return alreadyCalled[key];
+    }
+    return memoize;
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -310,7 +314,10 @@
   // The arguments for the original function are passed after the wait
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
-  _.delay = function(func, wait) {
+  _.delay = function(func, wait, ...args) {
+    return setTimeout(function() {
+      func.apply(null, args);
+      }, wait);
   };
 
 
@@ -325,6 +332,13 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+  //  var shuffledArray = _.map(array);
+    var result = [];
+    _.reduce(array, function(base, num) {
+      var newPosition = Math.floor(Math.random() * (1 + result.length));
+      result.splice(newPosition, 0, num);
+    }, 0);
+    return result;
   };
 
 
